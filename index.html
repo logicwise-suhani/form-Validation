@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+</head>
+
+<body>
+
+    <form id="myForm" action="/submit" method="POST" onsubmit="return agree()">
+        Name:
+        <input type="text" id="fname" name="fname" onblur="check_name()" onkeyup="updateSubmitState()" required>
+        <span id="$name"></span> <br>
+
+        Email:
+        <input type="email" id="email" name="email" onblur="check_email()" onkeyup="updateSubmitState()" required>
+        <span id="_email"></span> <br>
+
+        Password:
+        <input type="password" id="pwd" name="pwd" minlength="8" maxlength="20"
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+            title="Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters"
+            onblur=check_pwd() onkeyup="updateSubmitState()" required>
+        <span id="_pwd"></span>
+        <br>
+
+        Confirm Password:
+        <input type="password" id="con-pwd" name="con-pwd" minlength="8" maxlength="20"
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" onkeyup="updateSubmitState()" required>
+        <span id="message"></span> <br>
+
+        Phone:
+        <input type="tel" id="phone" name="phone" pattern="[0-9]{5}[0-9]{5}" minlength="10" maxlength="10"
+            placeholder="0123456789" onblur=check_digit() onkeyup="updateSubmitState()" required>
+        <span id="numb"></span>
+        <br>
+
+        Select Education:
+        <select id="grade" name="grade" onkeyup="updateSubmitState()" onclick="updateSubmitState()" required>
+            <option value="" selected disabled hidden>Select Education</option>
+            <option value="Secondary">Secondary(10th)</option>
+            <option value="Senior Secondary(12th)">Senior Secondary(12th)</option>
+            <option value="Graduate">Graduate</option>
+            <option value="Post Graduate">Post Graduate</option>
+
+        </select>
+        <br>
+
+        CGPA:
+        <input type="range" min="0" max="10" value="0" id="_cgpa" onclick="updateSubmitState()"
+            oninput="_cgpaValue.textContent = this.value">
+        <span id="cgpaValue">0</span> <br>
+
+
+        Gender:
+        <input type="radio" id="male" name="gender" value="Male" onclick="updateSubmitState()" required>
+        <label for="male">Male</label>
+
+        <input type="radio" id="female" name="gender" value="Female" onclick="updateSubmitState()" required>
+        <label for="male">Female</label>
+
+        <input type="radio" id="others" name="gender" value="Others" onclick="updateSubmitState()" required>
+        <label for="male">Others</label>
+        <br>
+
+        <input type="checkbox" id="yes" value="agree" onclick="updateSubmitState()">I Agree
+        <span id="check_box"></span> <br>
+
+        <button type="button" id="btn" onclick=clearFunction()>Clear</button>
+        <button type="submit" id="submit-btn" onclick=agree() disabled>Submit</button>
+        <span id="_message"></span> <br>
+
+
+    </form>
+    <br>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Education</th>
+                <th>Gender</th>
+                <th>ActionCell</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        </tbody>
+        <style>
+            table,
+            th,
+            td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+        </style>
+
+
+    </table>
+
+
+
+
+
+
+
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>

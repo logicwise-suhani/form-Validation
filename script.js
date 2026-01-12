@@ -1,112 +1,289 @@
-var confirm_pass = document.getElementById("con-pwd");
-var pass = document.getElementById("pwd");
+//Default Data
+const defaultData = [
+    {
+        newFirstName: "John Doe",
+        newEmail: "john@example.com",
+        newGrade: "Graduate",
+        newCgpa: 8,
+        gender: "Male",
+        password: "As111444",
+        phone_number: "9876543210"
+
+    },
+    {
+        newFirstName: "Jane Smith",
+        newEmail: "jane@example.com",
+        newGrade: "Post Graduate",
+        newCgpa: 9,
+        gender: "Female",
+        password: "As111111",
+        phone_number: "4578961023"
+    },
+    {
+        newFirstName: "Alex Brown",
+        newEmail: "alex@example.com",
+        newGrade: "Senior Secondary(12th)",
+        newCgpa: 7,
+        gender: "Others",
+        password: "As000000",
+        phone_number: "8941257630"
+    }
+];
+let editIndex = null;
+const newFirstName = document.getElementById("fname");
+const newEmail = document.getElementById("email");
+const newPass = document.getElementById("pwd");
+const newConfirmPass = document.getElementById("con-pwd");
+const newPhone = document.getElementById("phone");
+const newGrade = document.getElementById("grade");
+const newCgpa = document.getElementById("_cgpa");
+const newMale = document.getElementById("male");
+const newFemale = document.getElementById("female");
+const newOthers = document.getElementById("others");
+const newAgree = document.getElementById("yes");
+let numb = document.getElementById("numb");
+
+
+//span message
 var message = document.getElementById("message");
 var _message = document.getElementById("_message");
-var _cgpa = document.getElementById("_cgpa");
 var _cgpaValue = document.getElementById("cgpaValue");
 var myForm = document.getElementById("myForm");
-var check_box = document.getElementById("check_box");
-
-function check_Confirm() {
-    if (pass.value === confirm_pass.value) {
-        message.innerHTML = "Good to go";
-    }
-    else {
-        message.innerHTML = "Confirm again!";
-    }
-
-};
-
-confirm_pass.onkeyup = check_Confirm;
-
 
 //submit functions
 var _submit = document.getElementById("submit-btn");
-var checkbox = document.getElementById("yes");
-var _reset = document.getElementById("_reset");
 
-function updateSubmitState() {
-    if (allFilled() && checkbox.checked) {
-        _submit.disabled = false;
-        _message.innerHTML = "";
+let isValidatedFormInputs = {
+    fname: false,
+    email: false,
+    pwd: false,
+    "con-pwd": false,
+    phone: false,
+    grade: false,
+    _cgpa: false,
+    gender: {
+        male: false,
+        female: false,
+        others: false
+    },
+    yes: false
+}
 
+function allFilled(inputName, isValid, group) {
+    if (group) {
+        isValidatedFormInputs = {
+            ...isValidatedFormInputs,
+            [group]: {
+                ...isValidatedFormInputs[group],
+                [inputName]: isValid
+            }
+        };
     } else {
-        _submit.disabled = true;
+        isValidatedFormInputs = {
+            ...isValidatedFormInputs,
+            [inputName]: isValid
+        };
     }
+
+    checkFormValidity();
+}
+
+function checkFormValidity() {
+
+    const isValid = Object.entries(isValidatedFormInputs).every(
+        ([key, value]) => {
+            // handle nested gender object
+            if (key === "gender") {
+                return Object.values(value).some(Boolean);
+            }
+
+            // all other fields must be true
+            return value === true;
+        }
+
+    );
+    console.log('isValid :>> ', isValid, isValidatedFormInputs);
+    _submit.disabled = !isValid;
+
 
 }
 
+newFirstName.onchange = function () {
+    nameFn()
+}
 
 
+newEmail.onchange = function () {
+    emailFn()
+}
+
+newPass.onchange = function () {
+    passFn()
+}
+
+newConfirmPass.onchange = function () {
+    confirmPassFn()
+}
+
+newPhone.onchange = function () {
+    phoneFn()
+}
+
+newGrade.onchange = function () {
+    gradeFn()
+}
 
 
-function agree() {
-    if (!checkbox.checked) {
+newCgpa.onchange = function () {
+    cgpaFn()
+}
+
+newMale.onchange = function () {
+    maleFn()
+}
+
+newFemale.onchange = function () {
+    femaleFn()
+}
+
+newOthers.onchange = function () {
+    othersFn()
+}
+
+newAgree.onchange = function () {
+    agreeFn()
+}
+
+//Regex
+const nameFn = () => {
+    const regex = /^[A-Za-z\s-]+$/;
+
+    if (regex.test(newFirstName.value.trim())) {
+        allFilled('fname', true)
+        $name.textContent = "";
+    } else {
+        $name.textContent = "Enter correct format";
+        allFilled('fname', false)
+    }
+}
+
+const emailFn = () => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (regex.test(newEmail.value)) {
+        _email.textContent = "";
+        allFilled('email', true)
+
+    } else {
+        allFilled('email', false)
+        _email.textContent = "Please enter a valid email address (e.g., name@example.com).";
+
+    }
+}
+
+const passFn = () => {
+    const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+    if (pattern.test(newPass.value)) {
+        _pwd.textContent = "";
+        allFilled('pwd', true)
+
+    } else {
+        allFilled('pwd', false)
+        _pwd.textContent = "Enter correct format! Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters";
+    }
+}
+
+const confirmPassFn = () => {
+    if (newConfirmPass.value === newPass.value) {
+        message.innerHTML = "Good to go";
+        allFilled('con-pwd', true)
+    }
+    else {
+        allFilled('con-pwd', false)
+        message.innerHTML = "Confirm again!";
+    }
+}
+
+const phoneFn = () => {
+    const pattern = /^[0-9]{5}[0-9]{5}$/;
+
+    if (pattern.test(newPhone.value)) {
+        allFilled('phone', true)
+        numb.textContent = "";
+    } else {
+        numb.textContent = "Only digits in format 0123456789";
+        allFilled('phone', false)
+    }
+}
+
+const gradeFn = () => {
+    if (newGrade.value === "") {
+        allFilled('grade', false)
+    } else {
+        allFilled('grade', true)
+
+    }
+}
+
+const cgpaFn = () => {
+    allFilled('_cgpa', true)
+    _cgpaValue.textContent = newCgpa.value;
+}
+
+const maleFn = () => {
+    if (newMale.checked) {
+        allFilled('male', true, "gender")
+        allFilled("female", false, "gender",);
+        allFilled("others", false, "gender",);
+    }
+}
+
+const femaleFn = () => {
+    if (newFemale.checked) {
+        allFilled('male', false, "gender")
+        allFilled("female", true, "gender",);
+        allFilled("others", false, "gender",);
+    }
+}
+
+const othersFn = () => {
+    if (newOthers.checked) {
+        allFilled('male', false, "gender")
+        allFilled("female", false, "gender",);
+        allFilled("others", true, "gender",);
+    }
+}
+
+const agreeFn = () => {
+    if (!newAgree.checked) {
         _message.innerHTML = "Check I Agree!";
-        _submit.disabled = true;
-        clearFunction();
+        allFilled('yes', false)
         return false;
+
     } else {
         _message.innerHTML = "";
+        allFilled('yes', true)
+
         return true;
     }
-
-
-
 }
-
-function allFilled() {
-    if (fname.value.trim() !== "" &&
-        email.value.trim() !== "" &&
-        phone.value.trim() !== "" &&
-        pass.value.trim() !== "" &&
-        confirm_pass.value.trim() !== "" &&
-        grade.value.trim() !== "" &&
-        (male.checked || female.checked || others.checked)) {
-        _submit.disabled = false;
-    }
-
-
-    return fname.value.trim() !== "" &&
-        email.value.trim() !== "" &&
-        phone.value.trim() !== "" &&
-        pass.value.trim() !== "" &&
-        confirm_pass.value.trim() !== "" &&
-        grade.value.trim() !== "" &&
-        (male.checked || female.checked || others.checked);
-
-
-}
-
-
-
-var education = document.getElementById("grade");
-var fname = document.getElementById("fname");
-var email = document.getElementById("email");
-var phone = document.getElementById("phone");
-var male = document.getElementById("male");
-var female = document.getElementById("female");
-var others = document.getElementById("others");
-
-
 
 
 //clear functions
 function clearFunction() {
-    fname.value = "";
-    email.value = "";
-    phone.value = "";
-    pass.value = "";
-    confirm_pass.value = "";
-    education.value = "";
-    male.checked = false;
-    female.checked = false;
-    others.checked = false;
-    checkbox.checked = false;
+    newFirstName.value = "";
+    newEmail.value = "";
+    newPhone.value = "";
+    newPass.value = "";
+    newConfirmPass.value = "";
+    newGrade.value = "";
+    newMale.checked = false;
+    newFemale.checked = false;
+    newOthers.checked = false;
+    newAgree.checked = false;
     message.innerHTML = "";
     _message.innerHTML = ""
     default_cgpa();
-    // _submit.disabled = true;
 }
 
 
@@ -116,100 +293,41 @@ function default_cgpa() {
 }
 
 
-
-let numb = document.getElementById("numb");
-
-
-function check_digit() {
-    const pattern = /^[0-9]{5}[0-9]{5}$/;
-
-    if (pattern.test(phone.value)) {
-        numb.textContent = "";
-    } else {
-        numb.textContent = "Only digits in format 0123456789";
-        _submit.disabled = true;
-
-    }
-
-
-}
-
-
-let _pwd = document.getElementById("_pwd");
-
-function check_pwd() {
-    const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-
-    if (pattern.test(pass.value)) {
-        _pwd.textContent = "";
-    } else {
-        _pwd.textContent = "Enter correct format! Must contain at least one number, one uppercase and lowercase letter, and at least 8 characters";
-        _submit.disabled = true;
-
-    }
-}
-
-
-function check_name() {
-    const regex = /^[A-Za-z\s-]+$/;
-
-    if (regex.test(fname.value)) {
-        $name.textContent = "";
-    } else {
-        $name.textContent = "Enter correct format";
-        _submit.disabled = true;
-
-    }
-}
-
-function check_email() {
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    if (regex.test(email.value)) {
-        _email.textContent = "";
-    } else {
-        _email.textContent = "Please enter a valid email address (e.g., name@example.com).";
-        _submit.disabled = true;
-
-    }
-}
-
-
-//Tables
-var fname = document.getElementById("fname");
-var email = document.getElementById("email");
-var phone = document.getElementById("phone");
-var male = document.getElementById("male");
-var female = document.getElementById("female");
-var others = document.getElementById("others");
-var education = document.getElementById("grade");
-
-let editIndex = null;
-
-
+//Button submit
 myForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const currentName = fname.value;
-    const currentEmail = email.value;
-    const currentEducation = grade.value;
-    const currentGender = male.checked ? "Male" : female.checked ? "Female" : "Others";
+    const currentName = newFirstName.value;
+    const currentEmail = newEmail.value;
+    const currentEducation = newGrade.value;
+    const currentGender = newMale.checked ? "Male" : newFemale.checked ? "Female" : "Others";
+    const currentpass = newPass.value;
+    const currentphone = newPhone.value;
+    const currentcgpa = newCgpa.value;
 
     const storedData = JSON.parse(localStorage.getItem("formData")) || [];
 
     if (editIndex !== null) {
         storedData[editIndex] = {
-            fname: fname.value,
-            email: email.value,
-            education: grade.value,
-            gender: currentGender
+            newFirstName: newFirstName.value,
+            newEmail: newEmail.value,
+            newGrade: newGrade.value,
+            gender: currentGender,
+            password: currentpass,
+            phone_number: currentphone,
+            newCgpa: currentcgpa
         }
 
         const tableRow = document.getElementById("dataTable").rows[editIndex + 1];
-        tableRow.cells[0].textContent = fname.value;
-        tableRow.cells[1].textContent = email.value;
-        tableRow.cells[2].textContent = grade.value;
-        tableRow.cells[3].textContent = currentGender;
+        tableRow.cells[0].textContent = newFirstName.value;
+        tableRow.cells[1].textContent = newEmail.value;
+        tableRow.cells[2].textContent = newGrade.value;
+        tableRow.cells[3].textContent = newCgpa.value;
+        tableRow.cells[4].textContent = currentGender;
+        tableRow.cells[5].textContent = hidden_password(newPass.value);
+        tableRow.cells[5].dataset.realPassword = newPass.value;
+        tableRow.cells[6].textContent = newPhone.value;
+
 
         editIndex = null;
         _submit.innerText = "Submit";
@@ -217,13 +335,17 @@ myForm.addEventListener("submit", function (e) {
 
     else {
         storedData.push({
-            fname: currentName,
-            email: currentEmail,
-            education: currentEducation,
-            gender: currentGender
+            newFirstName: currentName,
+            newEmail: currentEmail,
+            newGrade: currentEducation,
+            newCgpa: currentcgpa,
+            gender: currentGender,
+            password: currentpass,
+            phone_number: currentphone
+
         });
 
-        addRowToTable(currentName, currentEmail, currentEducation, currentGender);
+        addRowToTable(currentName, currentEmail, currentEducation, currentcgpa, currentGender, currentpass, currentphone);
 
     }
 
@@ -231,27 +353,34 @@ myForm.addEventListener("submit", function (e) {
     console.log("Data being saved:", storedData);
 
     myForm.reset();
+    default_cgpa();
 
 });
 
 //only displays data, does not store anything
-function addRowToTable(fnameValue, emailValue, educationValue, genderValue) {
+function addRowToTable(fnameValue, emailValue, educationValue, CgpaValue, genderValue, passValue, phoneValue) {
     const tableBody = document.getElementById("dataTable").querySelector("tbody");
     const newRow = tableBody.insertRow();
     newRow.insertCell(0).textContent = fnameValue;
     newRow.insertCell(1).textContent = emailValue;
     newRow.insertCell(2).textContent = educationValue;
-    newRow.insertCell(3).textContent = genderValue;
+    newRow.insertCell(3).textContent = CgpaValue;
+    newRow.insertCell(4).textContent = genderValue;
+    const passwordCell = newRow.insertCell(5);
+    passwordCell.textContent = hidden_password(passValue);
+    passwordCell.dataset.realPassword = passValue;
+    newRow.insertCell(6).textContent = phoneValue;
+
 
     //edit button
-    const actionButtons = newRow.insertCell(4);
+    const actionButtons = newRow.insertCell(7);
     const editButton = document.createElement("button");
     editButton.innerText = "Edit";
     actionButtons.append(editButton);
 
     editButton.onclick = function () {
         editbtn(this);
-        updateButton();
+
     }
 
     //delete button
@@ -267,62 +396,48 @@ function addRowToTable(fnameValue, emailValue, educationValue, genderValue) {
 
 }
 
-//update function
-
-function updateButton() {
-
-    if (allFilled() && checkbox.checked) {
-        _submit.disabled = false;
-        _submit.innerText = "Update";
-
-    } else {
-        _submit.disabled = true;
-        _submit.innerText = "Submit";
-    }
-
-
-
-    checkbox.addEventListener("change", updateButton);
-
-    fname.addEventListener("input", updateButton);
-    email.addEventListener("input", updateButton);
-    grade.addEventListener("input", updateButton);
-
-
-}
-
-
-//page refresh
-window.addEventListener("beforeunload", function (e) {
-
-    if (fname.value || email.value || grade.value || male.checked || female.checked || others.checked) {
-        e.preventDefault();
-    }
-})
-
-
 
 //edit function
 function editbtn(button) {
     const row = button.parentElement.parentElement;
     editIndex = row.rowIndex - 1;
 
-    fname.value = row.cells[0].textContent;
-    email.value = row.cells[1].textContent;
-    grade.value = row.cells[2].textContent;
-    const _gender = row.cells[3].textContent;
+    newFirstName.value = row.cells[0].textContent;
+
+    newEmail.value = row.cells[1].textContent;
+    newGrade.value = row.cells[2].textContent;
+    newCgpa.value = row.cells[3].textContent;
+    _cgpaValue.textContent = row.cells[3].textContent;
+    const _gender = row.cells[4].textContent;
+    newPass.value = row.cells[5].dataset.realPassword;
+    newPhone.value = row.cells[6].textContent;
 
     if (_gender === "Male") {
-        male.checked = true;
+        newMale.checked = true;
     }
     else if (_gender === "Female") {
-        female.checked = true;
+        newFemale.checked = true;
     }
     else if (_gender === "Others") {
-        others.checked = true;
+        newOthers.checked = true;
     }
+    _submit.innerText = "Update";
+    nameFn()
+    emailFn()
+    passFn()
+    confirmPassFn()
+    phoneFn()
+    gradeFn()
+    cgpaFn()
+    maleFn()
+    femaleFn()
+    othersFn()
+    agreeFn()
 
-
+    //page refresh
+    window.addEventListener("beforeunload", function (e) {
+        e.preventDefault();
+    })
 }
 
 
@@ -347,30 +462,12 @@ function deletebtn(button) {
 }
 
 
-//Default Data
 
-const defaultData = [
-    {
-        fname: "John Doe",
-        email: "john@example.com",
-        education: "Graduate",
-        gender: "Male"
+//hidden password in default data
 
-    },
-    {
-        fname: "Jane Smith",
-        email: "jane@example.com",
-        education: "Post Graduate",
-        gender: "Female"
-    },
-    {
-        fname: "Alex Brown",
-        email: "alex@example.com",
-        education: "Senior Secondary(12th)",
-        gender: "Others"
-    }
-];
-
+const hidden_password = (password) => {
+    return "*".repeat(password.toString().length);
+};
 
 window.addEventListener("DOMContentLoaded", function () {
 
@@ -383,13 +480,10 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     storedData.forEach((item) => {
-        addRowToTable(item.fname, item.email, item.education, item.gender);
+        addRowToTable(item.newFirstName, item.newEmail, item.newGrade, item.newCgpa, item.gender, item.password, item.phone_number);
     });
 
 });
 
 //localStorage.clear();
-
-
-
 

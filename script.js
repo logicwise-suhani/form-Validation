@@ -30,6 +30,7 @@ const defaultData = [
     }
 ];
 let editIndex = null;
+let storedData = [];
 const newFirstName = document.getElementById("fname");
 const newEmail = document.getElementById("email");
 const newPass = document.getElementById("pwd");
@@ -350,6 +351,7 @@ myForm.addEventListener("submit", function (e) {
     }
 
     localStorage.setItem("formData", JSON.stringify(storedData)); //permanently stored
+    renderTable(storedData);
     console.log("Data being saved:", storedData);
 
     myForm.reset();
@@ -461,29 +463,88 @@ function deletebtn(button) {
 
 }
 
-
-
 //hidden password in default data
 
 const hidden_password = (password) => {
     return "*".repeat(password.toString().length);
 };
 
-window.addEventListener("DOMContentLoaded", function () {
+//debounce
+function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn.apply(this, args);
+        }, delay);
+    };
+}
 
-    // Check if data already exists
-    let storedData = JSON.parse(localStorage.getItem("formData"));
+//Search Filter
+let searchInput = document.getElementById("searchInput");
 
-    if (storedData === null) {
-        localStorage.setItem("formData", JSON.stringify(defaultData));
-        storedData = defaultData;
+
+const debouncedSearch = debounce(function () {
+    const searchValue = this.value.toLowerCase();
+    filterData(searchValue);
+},);
+
+searchInput.addEventListener("input", debouncedSearch);
+
+function filterData(keyword) {
+    if (keyword === "") {
+        renderTable(storedData);
+        return;
     }
 
-    storedData.forEach((item) => {
-        addRowToTable(item.newFirstName, item.newEmail, item.newGrade, item.newCgpa, item.gender, item.password, item.phone_number);
+    let filteredUsers = storedData.filter(user => {
+        return (
+            user.newFirstName.toLowerCase().includes(keyword) ||
+            user.newEmail.toLowerCase().includes(keyword) ||
+            user.newGrade.toLowerCase().includes(keyword) ||
+            user.gender.toLowerCase().includes(keyword) ||
+            user.phone_number.includes(keyword)
+        );
     });
 
+    renderTable(filteredUsers);
+}
+
+function renderTable(dataArray) {
+    const tableBody = document
+        .getElementById("dataTable")
+        .querySelector("tbody");
+    tableBody.innerHTML = "";
+
+    dataArray.forEach(item => {
+        addRowToTable(
+            item.newFirstName,
+            item.newEmail,
+            item.newGrade,
+            item.newCgpa,
+            item.gender,
+            item.password,
+            item.phone_number
+        );
+
+    });
+
+}
+
+window.addEventListener("DOMContentLoaded", function () {
+
+    //chek if data alrady exists
+    storedData = JSON.parse(localStorage.getItem("formData"));
+
+    if (!storedData || storedData.length === 0) {
+        storedData = defaultData;
+        localStorage.setItem("formData", JSON.stringify(storedData));
+    }
+
+    renderTable(storedData);
 });
 
+
 //localStorage.clear();
+
 

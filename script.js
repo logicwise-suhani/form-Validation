@@ -480,35 +480,58 @@ function debounce(fn, delay) {
     };
 }
 
-//Search Filter
-let searchInput = document.getElementById("searchInput");
+//Filter
+let rangeValue = document.getElementById("rangeValue");
+let rangeFilter = document.getElementById("rangeFilter");
+let filterName = document.getElementById("filterName");
+let filterEmail = document.getElementById("filterEmail");
+let filterEducation = document.getElementById("filterEducation");
+let filterPhone = document.getElementById("filterPhone");
+let currentCgpa = null;
 
 
-const debouncedSearch = debounce(function () {
-    const searchValue = this.value.toLowerCase();
-    filterData(searchValue);
-},);
+const slider = debounce(function () {
+    currentCgpa = Number(this.value);
+    rangeValue.textContent = currentCgpa;
+    applyFilters();
+}, 300);
 
-searchInput.addEventListener("input", debouncedSearch);
+rangeFilter.addEventListener("input", slider);
 
-function filterData(keyword) {
-    if (keyword === "") {
-        renderTable(storedData);
-        return;
+function applyFilters() {
+    let data = [...storedData];
+
+
+    if (currentCgpa !== null) {
+        data = data.filter(user => Number(user.newCgpa) <= currentCgpa);
     }
 
-    let filteredUsers = storedData.filter(user => {
-        return (
-            user.newFirstName.toLowerCase().includes(keyword) ||
-            user.newEmail.toLowerCase().includes(keyword) ||
-            user.newGrade.toLowerCase().includes(keyword) ||
-            user.gender.toLowerCase().includes(keyword) ||
-            user.phone_number.includes(keyword)
+    if (filterName.value.trim() !== "") {
+        const nameValue = filterName.value.toLowerCase();
+        data = data.filter(user =>
+            user.newFirstName.toLowerCase().includes(nameValue)
         );
-    });
+    }
 
-    renderTable(filteredUsers);
+    if (filterEmail.value.trim() !== "") {
+        const emailValue = filterEmail.value.toLowerCase();
+        data = data.filter(user =>
+            user.newEmail.toLowerCase().includes(emailValue)
+        );
+    }
+
+    renderTable(data);
 }
+
+
+//debounce input for name and email
+const searchInput = debounce(function () {
+    applyFilters();
+}, 300);
+
+filterName.addEventListener("input", searchInput);
+filterEmail.addEventListener("input", searchInput);
+
 
 function renderTable(dataArray) {
     const tableBody = document
@@ -517,8 +540,7 @@ function renderTable(dataArray) {
     tableBody.innerHTML = "";
 
     dataArray.forEach(item => {
-        addRowToTable(
-            item.newFirstName,
+        addRowToTable(item.newFirstName,
             item.newEmail,
             item.newGrade,
             item.newCgpa,
@@ -528,8 +550,48 @@ function renderTable(dataArray) {
         );
 
     });
-
+    toggleColumns();
 }
+
+function toggleColumns() {
+    const table = document.getElementById("dataTable");
+    const rows = table.tBodies[0].rows;
+    const headers = table.tHead.rows[0].cells;
+
+    // column indexes
+    const BASE_COLUMNS = [0, 1, 3, 4, 7];
+    const EDUCATION_COL = 2;
+    const PHONE_COL = 6;
+
+    const isEducationSelected = filterEducation.checked;
+    const isPhoneSelected = filterPhone.checked;
+
+    const isFilterMode = isEducationSelected || isPhoneSelected;
+
+    for (let i = 0; i < headers.length; i++) {
+        let show = true;
+
+        if (isFilterMode) {
+            show =
+                BASE_COLUMNS.includes(i) ||
+                (isEducationSelected && i === EDUCATION_COL) ||
+                (isPhoneSelected && i === PHONE_COL);
+        }
+
+        headers[i].style.display = show ? "" : "none";
+
+        for (let row of rows) {
+            row.cells[i].style.display = show ? "" : "none";
+        }
+    }
+}
+
+
+[filterEducation, filterPhone].forEach(data => {
+    data.addEventListener("change", toggleColumns);
+
+})
+
 
 window.addEventListener("DOMContentLoaded", function () {
 

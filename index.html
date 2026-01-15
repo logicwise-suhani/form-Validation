@@ -76,10 +76,16 @@
     </form>
     <br>
 
-    <input type="text" id="searchInput" placeholder="Search...">
+    <label for="myRange">FilterCgpa: <span id="rangeValue">0</span></label>
+    <input type="range" id="rangeFilter" min="0" max="10" value="0">
     <br>
     <br>
 
+    <input type="text" id="filterName" placeholder="FilterName...">
+    <input type="text" id="filterEmail" placeholder="FilterEmail...">
+    <input type="checkbox" id="filterEducation"> Education
+    <input type="checkbox" id="filterPhone"> Phone
+    <br> <br>
     <table id="dataTable">
         <thead>
             <tr>

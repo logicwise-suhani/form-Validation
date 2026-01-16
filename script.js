@@ -487,6 +487,8 @@ let filterName = document.getElementById("filterName");
 let filterEmail = document.getElementById("filterEmail");
 let filterEducation = document.getElementById("filterEducation");
 let filterPhone = document.getElementById("filterPhone");
+let filter_phone = document.getElementById("filter_phone");
+let filterGrade = document.getElementById("filterGrade");
 let currentCgpa = null;
 
 
@@ -496,6 +498,7 @@ const slider = debounce(function () {
     applyFilters();
 }, 300);
 
+//event listener for slider
 rangeFilter.addEventListener("input", slider);
 
 function applyFilters() {
@@ -520,11 +523,24 @@ function applyFilters() {
         );
     }
 
+    if (filter_phone.value.trim() !== "") {
+        const phoneValue = filter_phone.value;
+        data = data.filter(user =>
+            user.phone_number.includes(phoneValue)
+        );
+    }
+
+    if (filterGrade.value !== "") {
+        const gradeValue = filterGrade.value;
+        data = data.filter(user =>
+            user.newGrade === gradeValue
+        );
+    }
+
     renderTable(data);
 }
 
-
-//debounce input for name and email
+//event listener for name and email
 const searchInput = debounce(function () {
     applyFilters();
 }, 300);
@@ -532,6 +548,15 @@ const searchInput = debounce(function () {
 filterName.addEventListener("input", searchInput);
 filterEmail.addEventListener("input", searchInput);
 
+//event listener for phone
+const phoneSearchInput = debounce(function () {
+    applyFilters();
+}, 300);
+
+filter_phone.addEventListener("input", phoneSearchInput);
+
+//event listener for education
+filterGrade.addEventListener("change", applyFilters);
 
 function renderTable(dataArray) {
     const tableBody = document

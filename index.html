@@ -84,7 +84,18 @@
     <input type="text" id="filterName" placeholder="FilterName...">
     <input type="text" id="filterEmail" placeholder="FilterEmail...">
     <input type="checkbox" id="filterEducation"> Education
+
+    <select id="filterGrade" name="grade" required>
+        <option value="" selected disabled hidden>FilterEducation...</option>
+        <option value="Secondary">Secondary(10th)</option>
+        <option value="Senior Secondary(12th)">Senior Secondary(12th)</option>
+        <option value="Graduate">Graduate</option>
+        <option value="Post Graduate">Post Graduate</option>
+
+    </select>
     <input type="checkbox" id="filterPhone"> Phone
+    <input type="text" id="filter_phone" placeholder="FilterPhone...">
+
     <br> <br>
     <table id="dataTable">
         <thead>

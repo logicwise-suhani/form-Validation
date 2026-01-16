@@ -81,10 +81,17 @@
     <br>
     <br>
 
-    <input type="text" id="filterName" placeholder="FilterName...">
-    <input type="text" id="filterEmail" placeholder="FilterEmail...">
-    <input type="checkbox" id="filterEducation"> Education
+    <input type="text" id="filter-search" placeholder="Search...">
 
+    <input type="checkbox" id="filterGenderColumn"> Gender
+    <select id="filterGenderSelect" name="gender" required>
+        <option value="" selected disabled hidden>FilterGender...</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Others">Others</option>
+    </select>
+
+    <input type="checkbox" id="filterEducation"> Education
     <select id="filterGrade" name="grade" required>
         <option value="" selected disabled hidden>FilterEducation...</option>
         <option value="Secondary">Secondary(10th)</option>

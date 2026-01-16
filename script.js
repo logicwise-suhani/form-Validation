@@ -170,15 +170,20 @@ const nameFn = () => {
 
 const emailFn = () => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (regex.test(newEmail.value)) {
-        _email.textContent = "";
-        allFilled('email', true)
-
-    } else {
-        allFilled('email', false)
-        _email.textContent = "Please enter a valid email address (e.g., name@example.com).";
-
+    if (!regex.test(newEmail.value)) {
+        _email.textContent = "Please enter a valid email address";
+        allFilled('email', false);
+        return;
     }
+
+    if (isDuplicate("newEmail", newEmail.value)) {
+        _email.textContent = "Email already exists";
+        allFilled('email', false);
+        return;
+    }
+
+    _email.textContent = "";
+    allFilled('email', true);
 }
 
 const passFn = () => {
@@ -208,13 +213,20 @@ const confirmPassFn = () => {
 const phoneFn = () => {
     const pattern = /^[0-9]{5}[0-9]{5}$/;
 
-    if (pattern.test(newPhone.value)) {
-        allFilled('phone', true)
-        numb.textContent = "";
-    } else {
+    if (!pattern.test(newPhone.value)) {
         numb.textContent = "Only digits in format 0123456789";
-        allFilled('phone', false)
+        allFilled('phone', false);
+        return;
     }
+
+    if (isDuplicate("phone_number", newPhone.value)) {
+        numb.textContent = "Phone number already exists";
+        allFilled('phone', false);
+        return;
+    }
+
+    numb.textContent = "";
+    allFilled('phone', true);
 }
 
 const gradeFn = () => {
@@ -269,6 +281,16 @@ const agreeFn = () => {
     }
 }
 
+function isDuplicate(field, value) {
+    const data = JSON.parse(localStorage.getItem("formData")) || [];
+
+    return data.some((item, index) => {
+        // allow same value while editing the same row
+        if (editIndex !== null && index === editIndex) return false;
+        return item[field] === value;
+    });
+}
+
 
 //clear functions
 function clearFunction() {
@@ -306,7 +328,15 @@ myForm.addEventListener("submit", function (e) {
     const currentphone = newPhone.value;
     const currentcgpa = newCgpa.value;
 
-    const storedData = JSON.parse(localStorage.getItem("formData")) || [];
+    storedData = JSON.parse(localStorage.getItem("formData")) || [];
+
+    if (
+        isDuplicate("newEmail", currentEmail) ||
+        isDuplicate("phone_number", currentphone)
+    ) {
+        alert("Duplicate Email or Phone Number found!");
+        return;
+    }
 
     if (editIndex !== null) {
         storedData[editIndex] = {
@@ -483,8 +513,9 @@ function debounce(fn, delay) {
 //Filter
 let rangeValue = document.getElementById("rangeValue");
 let rangeFilter = document.getElementById("rangeFilter");
-let filterName = document.getElementById("filterName");
-let filterEmail = document.getElementById("filterEmail");
+let filterSearch = document.getElementById("filter-search");
+let filterGenderColumn = document.getElementById("filterGenderColumn");
+let filterGenderSelect = document.getElementById("filterGenderSelect");
 let filterEducation = document.getElementById("filterEducation");
 let filterPhone = document.getElementById("filterPhone");
 let filter_phone = document.getElementById("filter_phone");
@@ -502,6 +533,7 @@ const slider = debounce(function () {
 rangeFilter.addEventListener("input", slider);
 
 function applyFilters() {
+    storedData = JSON.parse(localStorage.getItem("formData")) || [];
     let data = [...storedData];
 
 
@@ -509,17 +541,11 @@ function applyFilters() {
         data = data.filter(user => Number(user.newCgpa) <= currentCgpa);
     }
 
-    if (filterName.value.trim() !== "") {
-        const nameValue = filterName.value.toLowerCase();
+    if (filterSearch.value.trim() !== "") {
+        const searchValue = filterSearch.value.toLowerCase();
         data = data.filter(user =>
-            user.newFirstName.toLowerCase().includes(nameValue)
-        );
-    }
-
-    if (filterEmail.value.trim() !== "") {
-        const emailValue = filterEmail.value.toLowerCase();
-        data = data.filter(user =>
-            user.newEmail.toLowerCase().includes(emailValue)
+            user.newFirstName.toLowerCase().includes(searchValue) ||
+            user.newEmail.toLowerCase().includes(searchValue)
         );
     }
 
@@ -537,6 +563,13 @@ function applyFilters() {
         );
     }
 
+    if (filterGenderSelect.value !== "") {
+        const selectedGender = filterGenderSelect.value;
+        data = data.filter(user =>
+            user.gender === selectedGender
+        );
+    }
+
     renderTable(data);
 }
 
@@ -545,8 +578,7 @@ const searchInput = debounce(function () {
     applyFilters();
 }, 300);
 
-filterName.addEventListener("input", searchInput);
-filterEmail.addEventListener("input", searchInput);
+filterSearch.addEventListener("input", searchInput);
 
 //event listener for phone
 const phoneSearchInput = debounce(function () {
@@ -557,6 +589,10 @@ filter_phone.addEventListener("input", phoneSearchInput);
 
 //event listener for education
 filterGrade.addEventListener("change", applyFilters);
+
+//event listener for gender
+filterGenderSelect.addEventListener("change", applyFilters);
+filterGenderColumn.addEventListener("change", toggleColumns);
 
 function renderTable(dataArray) {
     const tableBody = document
@@ -584,14 +620,17 @@ function toggleColumns() {
     const headers = table.tHead.rows[0].cells;
 
     // column indexes
-    const BASE_COLUMNS = [0, 1, 3, 4, 7];
+    const BASE_COLUMNS = [0, 1, 3, 7];
+    const GENDER_COL = 4;
     const EDUCATION_COL = 2;
     const PHONE_COL = 6;
 
     const isEducationSelected = filterEducation.checked;
     const isPhoneSelected = filterPhone.checked;
+    const isGenderSelected = filterGenderColumn.checked;
 
-    const isFilterMode = isEducationSelected || isPhoneSelected;
+
+    const isFilterMode = isEducationSelected || isPhoneSelected || isGenderSelected;
 
     for (let i = 0; i < headers.length; i++) {
         let show = true;
@@ -600,7 +639,8 @@ function toggleColumns() {
             show =
                 BASE_COLUMNS.includes(i) ||
                 (isEducationSelected && i === EDUCATION_COL) ||
-                (isPhoneSelected && i === PHONE_COL);
+                (isPhoneSelected && i === PHONE_COL) ||
+                (isGenderSelected && i === GENDER_COL);
         }
 
         headers[i].style.display = show ? "" : "none";
@@ -613,7 +653,9 @@ function toggleColumns() {
 
 
 [filterEducation, filterPhone].forEach(data => {
-    data.addEventListener("change", toggleColumns);
+    data.addEventListener("change", () => {
+        toggleColumns();
+    });
 
 })
 
@@ -630,7 +672,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
     renderTable(storedData);
 });
-
 
 //localStorage.clear();
 
